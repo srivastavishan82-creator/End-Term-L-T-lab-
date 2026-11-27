@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduShield AI — Student Dropout Predictor &amp; Python Data Cleaning Studio</title>
+  <meta name="description" content="Cleans school attendance, marks, and fee CSV records in Python (missing value imputation, duplicate removal, inconsistent grading scales) to flag at-risk students.">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-workspace">Skip to dashboard workspace</a>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </span>
+        <div>
+          <span class="brand-title">EduShield <span class="brand-accent">AI</span></span>
+          <span class="brand-subtitle">Python Data Hygiene &amp; Dropout Early Warning</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Active User Session Pill -->
+        <div class="user-session-pill" id="user-session-pill" role="status" aria-label="Authenticated session">
+          <span class="user-avatar" id="user-avatar-initials">FA</span>
+          <div class="user-meta">
+            <span class="user-id-text" id="user-id-display">FAC-2026</span>
+            <span class="user-role-text" id="user-role-display">Retention Office</span>
+          </div>
+          <button type="button" class="btn btn-secondary btn-xs" id="sign-out-btn" title="Sign out of portal">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            <span>Sign Out</span>
+          </button>
+        </div>
+
+        <span class="status-pill" id="pipeline-status-pill" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="pipeline-status-text">Awaiting CSV upload</span>
+        </span>
+        <button type="button" class="btn btn-secondary btn-sm" id="download-template-btn" title="Download blank CSV header template">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>CSV Template</span>
+        </button>
+        <button type="button" class="btn btn-secondary btn-sm" id="download-clean-btn" disabled title="Export cleaned &amp; risk-scored CSV">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="m9 15 2 2 4-4"/></svg>
+          <span>Export Cleaned CSV</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-workspace" class="container page-shell">
+    <!-- Hero Editorial Section -->
+    <section class="hero-card" aria-labelledby="hero-heading">
+      <div class="hero-copy">
+        <div class="eyebrow-row">
+          <span class="badge badge-indigo">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Python Pandas + Scikit-Learn Engine
+          </span>
+          <span class="badge badge-teal" id="model-badge-pill">Ensemble ROC-AUC —</span>
+        </div>
+        <h1 id="hero-heading" class="hero-title">
+          Turn messy school registers into <em>early retention action.</em>
+        </h1>
+        <p class="hero-lead">
+          Upload school attendance logs, mixed grading scales (%, GPA, CGPA, letter grades, fractions), and fee ledgers. Our Python cleaning pipeline deduplicates records, standardizes scales, imputes missing values, and flags at-risk students before they drop out.
+        </p>
+
+        <div class="pipeline-pills" aria-label="Automated Python cleaning stages">
+          <span class="stage-chip"><span class="stage-num">01</span> Duplicate Removal</span>
+          <span class="stage-chip"><span class="stage-num">02</span> Grading Scale Unification</span>
+          <span class="stage-chip"><span class="stage-num">03</span> Missing Value Imputation</span>
+          <span class="stage-chip"><span class="stage-num">04</span> ML Dropout Risk Scoring</span>
+        </div>
+      </div>
+
+      <figure class="hero-visual">
+        <picture>
+          <source srcset="/static/assets/hero-illustration.webp" type="image/webp">
+          <img
+            src="/static/assets/hero-illustration.jpg"
+            alt="Students with academic analytics charts, attendance trend curve, and graduation milestone indicators"
+            width="640"
+            height="480"
+            fetchpriority="high"
+            decoding="async"
+          >
+        </picture>
+      </figure>
+    </section>
+
+    <!-- Data Ingestion & Python Pipeline Controls -->
+    <section class="control-deck card" aria-labelledby="controls-heading">
+      <div class="control-deck-header">
+        <div>
+          <h2 id="controls-heading" class="section-heading">Upload School CSV &amp; Python Cleaning Configuration</h2>
+          <p class="section-sub">Upload your school records CSV file, select Python cleaning strategies, and run the dropout prediction pipeline.</p>
+        </div>
+        <div class="dataset-meta-chip" id="active-source-badge">No CSV uploaded yet</div>
+      </div>
+
+      <div class="control-grid">
+        <!-- Upload Column -->
+        <div class="control-block">
+          <span class="field-label">School Dataset CSV Upload</span>
+          <div class="dropzone" id="csv-dropzone" tabindex="0" role="button" aria-label="Upload school CSV file or drag and drop here" style="flex:1">
+            <input type="file" id="csv-file-input" accept=".csv,text/csv" class="visually-hidden">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+            <div>
+              <strong id="dropzone-title">Drop your school CSV here or click to browse</strong>
+              <span id="dropzone-hint">Expected columns: student_id, student_name, grade_level, attendance, marks_grade, fee_due, fee_status</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cleaning Algorithm Column -->
+        <div class="control-block">
+          <label for="imputation-select" class="field-label">Python Missing Value Imputation</label>
+          <select id="imputation-select" class="form-control">
+            <option value="cohort_median" selected>Cohort Median (by Grade Level)</option>
+            <option value="knn">Scikit-Learn KNNImputer (k=3 distance-weighted)</option>
+            <option value="global_median">Global Cohort Median</option>
+          </select>
+
+          <label for="dedup-select" class="field-label mt-sm">Duplicate Record Detection</label>
+          <select id="dedup-select" class="form-control">
+            <option value="smart" selected>Smart (Normalized ID + Fuzzy Name &amp; Grade + Backfill)</option>
+            <option value="exact_id">Normalized Student ID Match Only</option>
+          </select>
+
+          <div class="run-row">
+            <button type="button" class="btn btn-primary btn-run" id="run-pipeline-btn" disabled>
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>Run Python Cleaning &amp; Prediction</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="error-banner" class="alert-banner" role="alert" hidden></div>
+    </section>
+
+    <!-- Top KPI Bento Strip -->
+    <section class="kpi-grid" aria-label="Cohort cleaning and risk summary metrics">
+      <article class="kpi-card kpi-indigo">
+        <div class="kpi-head">
+          <span class="kpi-label">Data Hygiene Lift</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value tabular" id="kpi-hygiene">—</div>
+        <p class="kpi-sub" id="kpi-hygiene-sub">Upload a CSV file to compute quality lift</p>
+      </article>
+
+      <article class="kpi-card kpi-rose">
+        <div class="kpi-head">
+          <span class="kpi-label">High &amp; Medium Risk Flagged</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value tabular" id="kpi-flagged">—</div>
+        <p class="kpi-sub" id="kpi-flagged-sub">Students needing advisor triage</p>
+      </article>
+
+      <article class="kpi-card kpi-emerald">
+        <div class="kpi-head">
+          <span class="kpi-label">Clean Cohort &amp; Retention</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value tabular" id="kpi-retention">—</div>
+        <p class="kpi-sub" id="kpi-retention-sub">Deduplicated unique learners</p>
+      </article>
+
+      <article class="kpi-card kpi-amber">
+        <div class="kpi-head">
+          <span class="kpi-label">Scale &amp; Imputation Fixes</span>
+          <span class="kpi-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </span>
+        </div>
+        <div class="kpi-value tabular" id="kpi-fixes">—</div>
+        <p class="kpi-sub" id="kpi-fixes-sub">Grades normalized + nulls imputed</p>
+      </article>
+    </section>
+
+    <!-- Primary Workspace Tabs -->
+    <section class="workspace-tabs" aria-label="Analytical views">
+      <div class="tablist" role="tablist" aria-label="Dashboard sections">
+        <button type="button" role="tab" id="tab-overview" aria-selected="true" data-panel="panel-overview">
+          Overview &amp; Risk Analytics
+        </button>
+        <button type="button" role="tab" id="tab-cleaning" aria-selected="false" data-panel="panel-cleaning">
+          Python Cleaning &amp; Audit Diffs
+        </button>
+        <button type="button" role="tab" id="tab-students" aria-selected="false" data-panel="panel-students">
+          At-Risk Student Directory
+        </button>
+        <button type="button" role="tab" id="tab-sandbox" aria-selected="false" data-panel="panel-sandbox">
+          Manual Student Predictor
+        </button>
+      </div>
+
+      <!-- TAB 1: OVERVIEW & RISK INTELLIGENCE -->
+      <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" class="tab-panel">
+        <div class="analytics-bento">
+          <!-- Risk Tier Breakdown Donut + Summary -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>Dropout Risk Tier Distribution</h3>
+                <p class="card-sub">Ensemble classifier threshold tiers across deduplicated cohort</p>
+              </div>
+              <span class="badge badge-neutral" id="total-students-pill">No data</span>
+            </div>
+            <div class="donut-layout" id="risk-donut-container"></div>
+          </article>
+
+          <!-- Before vs After Data Quality -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>Python Data Hygiene Impact</h3>
+                <p class="card-sub">Issues detected in raw export vs. post-cleaning state</p>
+              </div>
+              <span class="badge badge-teal" id="quality-delta-pill">Awaiting CSV</span>
+            </div>
+            <div id="hygiene-bars-container" class="bars-stack"></div>
+          </article>
+
+          <!-- Attendance vs Normalized Marks Risk Quadrant (Wide) -->
+          <article class="card panel-card span-2">
+            <div class="card-head">
+              <div>
+                <h3>Attendance vs. Standardized Marks Risk Quadrant</h3>
+                <p class="card-sub">Every dot represents a cleaned student record. Click any point to inspect data lineage &amp; intervention plan.</p>
+              </div>
+              <div class="legend-inline">
+                <span class="legend-item"><span class="dot dot-high" aria-hidden="true"></span> High Risk</span>
+                <span class="legend-item"><span class="dot dot-med" aria-hidden="true"></span> Medium Risk</span>
+                <span class="legend-item"><span class="dot dot-low" aria-hidden="true"></span> Low Risk</span>
+              </div>
+            </div>
+            <div id="scatter-chart-container" class="chart-box"></div>
+          </article>
+
+          <!-- Grade / Cohort Heatmap Breakdown -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>Risk Breakdown by Grade Cohort</h3>
+                <p class="card-sub">Identify systemic grade-level bottlenecks</p>
+              </div>
+            </div>
+            <div id="grade-breakdown-container" class="bars-stack"></div>
+          </article>
+
+          <!-- Model Feature Importance & Validation Metrics -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>ML Feature Drivers &amp; Cross-Validation</h3>
+                <p class="card-sub" id="model-subtitle">Trained ensemble classifier metrics</p>
+              </div>
+            </div>
+            <div id="feature-importance-container" class="bars-stack"></div>
+            <div class="cv-metrics-row" id="cv-metrics-row"></div>
+          </article>
+        </div>
+      </div>
+
+      <!-- TAB 2: PYTHON CLEANING PIPELINE & AUDIT DIFFS -->
+      <div id="panel-cleaning" role="tabpanel" aria-labelledby="tab-cleaning" class="tab-panel" hidden>
+        <div class="cleaning-hero-strip card">
+          <div class="cleaning-hero-copy">
+            <span class="badge badge-indigo">Step-by-Step Python Transformation Audit</span>
+            <h3>How Python Cleans Raw School Exports</h3>
+            <p>
+              Institutional CSVs often arrive with repeated rows, trailing whitespace, missing register entries, currency symbols, and mixed grading conventions. Upload your CSV to inspect the audit log produced by <code>app/data_cleaner.py</code>.
+            </p>
+            <div class="cleaning-counters" id="cleaning-counters"></div>
+          </div>
+          <figure class="cleaning-visual">
+            <picture>
+              <source srcset="/static/assets/pipeline-illustration.webp" type="image/webp">
+              <img src="/static/assets/pipeline-illustration.jpg" alt="Messy school spreadsheets passing through a clean indigo prism to produce tidy student profiles" width="480" height="360" loading="lazy" decoding="async">
+            </picture>
+          </figure>
+        </div>
+
+        <div class="audit-grid">
+          <!-- Duplicate Removal Log -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>1. Duplicates Removed</h3>
+                <p class="card-sub">Exact &amp; fuzzy ID/name matches merged into richest record</p>
+              </div>
+              <span class="badge badge-rose" id="dup-count-badge">0 removed</span>
+            </div>
+            <div class="table-wrapper" tabindex="0" role="region" aria-label="Duplicate records removed">
+              <table class="audit-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Student ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Rows</th>
+                    <th scope="col">Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="duplicates-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <!-- Inconsistent Grading Scale Standardization -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>2. Inconsistent Grading Scales Unified</h3>
+                <p class="card-sub">GPA/4.0, CGPA/10, Letter Grades, Ratios &amp; Fractions → 0–100%</p>
+              </div>
+              <span class="badge badge-indigo" id="scale-count-badge">0 converted</span>
+            </div>
+            <div class="table-wrapper" tabindex="0" role="region" aria-label="Grading scale conversions">
+              <table class="audit-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Student</th>
+                    <th scope="col">Raw Mark</th>
+                    <th scope="col">Detected Scale</th>
+                    <th scope="col">Normalized</th>
+                  </tr>
+                </thead>
+                <tbody id="scales-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <!-- Missing Value Imputation Log -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>3. Missing Values Imputed</h3>
+                <p class="card-sub">Null placeholders (N/A, --, blank) filled cleanly without dropping students</p>
+              </div>
+              <span class="badge badge-amber" id="imputed-count-badge">0 cells</span>
+            </div>
+            <div class="table-wrapper" tabindex="0" role="region" aria-label="Imputed missing values">
+              <table class="audit-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Student</th>
+                    <th scope="col">Column</th>
+                    <th scope="col">Raw</th>
+                    <th scope="col">Imputed</th>
+                    <th scope="col">Method</th>
+                  </tr>
+                </thead>
+                <tbody id="imputed-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+
+          <!-- Fee & Status Reconciliation -->
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>4. Currency &amp; Fee Status Fixes</h3>
+                <p class="card-sub">Stripped currency formatting &amp; reconciled balance/status conflicts</p>
+              </div>
+              <span class="badge badge-teal" id="fee-fix-badge">0 fixed</span>
+            </div>
+            <div class="table-wrapper" tabindex="0" role="region" aria-label="Fee and status fixes">
+              <table class="audit-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Student</th>
+                    <th scope="col">Field</th>
+                    <th scope="col">Raw → Clean</th>
+                    <th scope="col">Audit Note</th>
+                  </tr>
+                </thead>
+                <tbody id="fee-fixes-tbody"></tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+
+        <!-- Full Before vs. After Cell Lineage Inspector -->
+        <article class="card panel-card mt-md">
+          <div class="card-head">
+            <div>
+              <h3>Cell-by-Cell Before &amp; After Transformation Inspector</h3>
+              <p class="card-sub">Side-by-side raw input vs. cleaned Python output for every surviving student record</p>
+            </div>
+            <label class="toggle-chip">
+              <input type="checkbox" id="only-modified-diff-toggle" checked>
+              <span>Show modified rows only</span>
+            </label>
+          </div>
+          <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="diff-table-caption">
+            <table class="data-table" id="diff-table">
+              <caption id="diff-table-caption" class="visually-hidden">Before and after data cleaning comparison per student</caption>
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Student</th>
+                  <th scope="col">Attendance (Raw → Clean)</th>
+                  <th scope="col">Marks / Scale (Raw → Clean)</th>
+                  <th scope="col">Fee Balance &amp; Status (Raw → Clean)</th>
+                  <th scope="col">Python Transformations</th>
+                </tr>
+              </thead>
+              <tbody id="diff-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <!-- TAB 3: AT-RISK STUDENT DIRECTORY -->
+      <div id="panel-students" role="tabpanel" aria-labelledby="tab-students" class="tab-panel" hidden>
+        <article class="card panel-card">
+          <div class="directory-toolbar">
+            <div class="search-wrap">
+              <label for="student-search" class="visually-hidden">Search student name or ID</label>
+              <input type="search" id="student-search" class="form-control" placeholder="Search by student name, ID, or driver...">
+            </div>
+
+            <div class="filter-group" role="group" aria-label="Filter by risk tier">
+              <button type="button" class="pill-filter is-active" data-tier="ALL">All</button>
+              <button type="button" class="pill-filter" data-tier="High Risk">High Risk</button>
+              <button type="button" class="pill-filter" data-tier="Medium Risk">Medium Risk</button>
+              <button type="button" class="pill-filter" data-tier="Low Risk">Low Risk</button>
+            </div>
+
+            <div class="grade-filter-wrap">
+              <label for="grade-filter" class="visually-hidden">Filter by grade level</label>
+              <select id="grade-filter" class="form-control">
+                <option value="ALL">All Grades</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="table-sort-status" role="status" class="visually-hidden"></div>
+
+          <div class="table-wrapper directory-wrapper" tabindex="0" role="region" aria-labelledby="students-table-caption">
+            <table class="data-table sortable" id="students-table">
+              <caption id="students-table-caption" class="visually-hidden">Predicted student dropout risk directory</caption>
+              <thead>
+                <tr>
+                  <th scope="col" data-type="text"><button type="button" class="sort-btn" data-col="0">Student <span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col" data-type="text"><button type="button" class="sort-btn" data-col="1">Grade <span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col" data-type="number"><button type="button" class="sort-btn" data-col="2">Attendance <span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col" data-type="number"><button type="button" class="sort-btn" data-col="3">Cleaned Marks <span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col" data-type="number"><button type="button" class="sort-btn" data-col="4">Fee Due <span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col" data-type="number" aria-sort="descending"><button type="button" class="sort-btn" data-col="5">Risk Score <span class="sort-ind" aria-hidden="true"></span></button></th>
+                  <th scope="col">Primary Driver &amp; Status</th>
+                  <th scope="col">Action</th>
+                </tr>
+              </thead>
+              <tbody id="students-tbody"></tbody>
+            </table>
+          </div>
+        </article>
+      </div>
+
+      <!-- TAB 4: MANUAL STUDENT PREDICTOR -->
+      <div id="panel-sandbox" role="tabpanel" aria-labelledby="tab-sandbox" class="tab-panel" hidden>
+        <div class="sandbox-grid">
+          <article class="card panel-card">
+            <div class="card-head">
+              <div>
+                <h3>Clean &amp; Score an Individual Student Record</h3>
+                <p class="card-sub">Enter your own student details below (leave attendance, marks, or fees blank to trigger Python imputation) and run live cleaning &amp; dropout prediction.</p>
+              </div>
+            </div>
+
+            <form id="single-record-form" class="sandbox-form">
+              <div class="form-row-2">
+                <div>
+                  <label for="s-id" class="field-label">Student ID</label>
+                  <input id="s-id" name="student_id" type="text" class="form-control" placeholder="Enter student ID" required>
+                </div>
+                <div>
+                  <label for="s-name" class="field-label">Student Name</label>
+                  <input id="s-name" name="student_name" type="text" class="form-control" placeholder="Enter student full name" required>
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div>
+                  <label for="s-grade" class="field-label">Grade Level</label>
+                  <select id="s-grade" name="grade_level" class="form-control" required>
+                    <option value="" selected disabled>Select grade level</option>
+                    <option value="Grade 9">Grade 9</option>
+                    <option value="Grade 10">Grade 10</option>
+                    <option value="Grade 11">Grade 11</option>
+                    <option value="Grade 12">Grade 12</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="s-attendance" class="field-label">Raw Attendance (optional)</label>
+                  <input id="s-attendance" name="attendance" type="text" class="form-control" placeholder="Percentage or fraction (leave blank if missing)">
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div>
+                  <label for="s-marks" class="field-label">Raw Marks / Grade (optional)</label>
+                  <input id="s-marks" name="marks_raw" type="text" class="form-control" placeholder="Percentage, GPA, CGPA, letter grade, or fraction">
+                </div>
+                <div>
+                  <label for="s-fee" class="field-label">Raw Fee Balance (optional)</label>
+                  <input id="s-fee" name="fee_due" type="text" class="form-control" placeholder="Numeric balance or currency (leave blank if missing)">
+                </div>
+              </div>
+
+              <div class="form-row-2">
+                <div>
+                  <label for="s-fee-status" class="field-label">Raw Fee Status (optional)</label>
+                  <input id="s-fee-status" name="fee_status" type="text" class="form-control" placeholder="Paid, Partial, Pending, or Overdue">
+                </div>
+                <div>
+                  <label for="s-imp" class="field-label">Imputation Method</label>
+                  <select id="s-imp" name="imputation_method" class="form-control">
+                    <option value="cohort_median" selected>Cohort Median (by Grade)</option>
+                    <option value="knn">Scikit-Learn KNNImputer</option>
+                    <option value="global_median">Global Median</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex; gap:0.65rem; flex-wrap:wrap;">
+                <button type="submit" class="btn btn-primary" style="flex:1">
+                  <span>Clean Record &amp; Predict Dropout Risk</span>
+                </button>
+                <button type="reset" class="btn btn-secondary" id="sandbox-reset-btn">Clear</button>
+              </div>
+            </form>
+          </article>
+
+          <article class="card panel-card" id="sandbox-result-card">
+            <div class="card-head">
+              <div>
+                <h3>Live Python Cleaning &amp; Prediction Output</h3>
+                <p class="card-sub">Real-time step trace from the FastAPI backend</p>
+              </div>
+            </div>
+            <div id="sandbox-result-body" class="sandbox-result-empty">
+              Enter student details on the left and submit to inspect how Python normalizes the grading scale, reconciles fee conflicts, imputes missing fields, and scores dropout risk.
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Native Accessible Modal Dialog for Student Details & Interventions -->
+  <dialog id="student-modal" class="student-dialog" closedby="any" aria-labelledby="modal-student-title">
+    <div class="dialog-shell">
+      <div class="dialog-header">
+        <div>
+          <span class="badge badge-neutral" id="modal-student-id">ID</span>
+          <h1 id="modal-student-title" class="dialog-title">Student Profile</h1>
+          <p class="dialog-sub" id="modal-student-grade">Grade Level</p>
+        </div>
+        <button type="button" class="btn btn-icon" id="close-modal-btn" aria-label="Close student inspector">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div id="modal-body" class="dialog-body"></div>
+
+      <form method="dialog" class="dialog-footer">
+        <button type="submit" value="close" class="btn btn-secondary">Close</button>
+      </form>
+    </div>
+  </dialog>
+
+  <footer class="site-footer container">
+    <p>
+      EduShield AI &mdash; Student Dropout Predictor built with Python (<code>pandas</code>, <code>scikit-learn</code>, <code>FastAPI</code>) &amp; modern accessible web standards.
+    </p>
+  </footer>
+
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
