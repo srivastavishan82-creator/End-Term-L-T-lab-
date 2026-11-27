@@ -13,7 +13,7 @@ from typing import Any, Literal, cast
 import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -22,6 +22,21 @@ from app.predictor import MODEL_BUNDLE, predict_dropout_risk
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
+
+
+def _find_file(filename: str) -> Path | None:
+    candidates = [
+        STATIC_DIR / filename,
+        BASE_DIR / filename,
+        BASE_DIR / "public" / filename,
+        Path.cwd() / filename,
+        Path.cwd() / "static" / filename,
+        Path.cwd() / "public" / filename,
+    ]
+    for p in candidates:
+        if p.exists() and p.is_file():
+            return p
+    return None
 
 CSV_TEMPLATE_HEADER = (
     "student_id,student_name,grade_level,attendance,marks_grade,fee_due,fee_status\n"
@@ -42,7 +57,13 @@ app.add_middleware(
 
 if (STATIC_DIR / "assets").exists():
     app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+elif (BASE_DIR / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(BASE_DIR / "assets")), name="assets")
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+elif (BASE_DIR / "public").exists():
+    app.mount("/static", StaticFiles(directory=str(BASE_DIR / "public")), name="static")
 
 
 def _json_safe(obj: Any) -> Any:
@@ -151,58 +172,60 @@ def _build_full_response(
 
 @app.get("/", include_in_schema=False)
 @app.get("/login", include_in_schema=False)
-async def serve_login() -> FileResponse:
-    login_path = STATIC_DIR / "login.html"
-    if login_path.exists():
-        return FileResponse(str(login_path))
-    index_path = STATIC_DIR / "index.html"
-    if not index_path.exists():
-        raise HTTPException(status_code=404, detail="Frontend index.html not found.")
-    return FileResponse(str(index_path))
+@app.get("/login.html", include_in_schema=False)
+async def serve_login() -> HTMLResponse:
+    login_path = _find_file("login.html")
+    if login_path:
+        return HTMLResponse(login_path.read_text(encoding="utf-8"))
+    index_path = _find_file("index.html")
+    if not index_path:
+        raise HTTPException(status_code=404, detail="Login page not found.")
+    return HTMLResponse(index_path.read_text(encoding="utf-8"))
 
 
 @app.get("/dashboard", include_in_schema=False)
+@app.get("/dashboard.html", include_in_schema=False)
 @app.get("/main", include_in_schema=False)
-async def serve_dashboard() -> FileResponse:
-    index_path = STATIC_DIR / "index.html"
-    if not index_path.exists():
-        raise HTTPException(status_code=404, detail="Frontend index.html not found.")
-    return FileResponse(str(index_path))
+async def serve_dashboard() -> HTMLResponse:
+    dash_path = _find_file("dashboard.html") or _find_file("index.html")
+    if not dash_path:
+        raise HTTPException(status_code=404, detail="Dashboard page not found.")
+    return HTMLResponse(dash_path.read_text(encoding="utf-8"))
 
 
 @app.get("/favicon.ico", include_in_schema=False)
 async def serve_favicon() -> FileResponse:
-    favicon_path = STATIC_DIR / "favicon.ico"
-    if not favicon_path.exists():
+    favicon_path = _find_file("favicon.ico")
+    if not favicon_path:
         raise HTTPException(status_code=404, detail="Favicon not found.")
     return FileResponse(str(favicon_path), media_type="image/x-icon")
 
 
 @app.get("/styles.css", include_in_schema=False)
 @app.get("/dashboard/styles.css", include_in_schema=False)
-async def serve_styles() -> FileResponse:
-    css_path = STATIC_DIR / "styles.css"
-    if not css_path.exists():
+async def serve_styles() -> Response:
+    css_path = _find_file("styles.css")
+    if not css_path:
         raise HTTPException(status_code=404, detail="styles.css not found.")
-    return FileResponse(str(css_path), media_type="text/css")
+    return Response(content=css_path.read_text(encoding="utf-8"), media_type="text/css")
 
 
 @app.get("/app.js", include_in_schema=False)
 @app.get("/dashboard/app.js", include_in_schema=False)
-async def serve_app_js() -> FileResponse:
-    js_path = STATIC_DIR / "app.js"
-    if not js_path.exists():
+async def serve_app_js() -> Response:
+    js_path = _find_file("app.js")
+    if not js_path:
         raise HTTPException(status_code=404, detail="app.js not found.")
-    return FileResponse(str(js_path), media_type="application/javascript")
+    return Response(content=js_path.read_text(encoding="utf-8"), media_type="application/javascript")
 
 
 @app.get("/favicon.svg", include_in_schema=False)
 @app.get("/dashboard/favicon.svg", include_in_schema=False)
-async def serve_svg_favicon() -> FileResponse:
-    svg_path = STATIC_DIR / "favicon.svg"
-    if not svg_path.exists():
+async def serve_svg_favicon() -> Response:
+    svg_path = _find_file("favicon.svg")
+    if not svg_path:
         raise HTTPException(status_code=404, detail="favicon.svg not found.")
-    return FileResponse(str(svg_path), media_type="image/svg+xml")
+    return Response(content=svg_path.read_text(encoding="utf-8"), media_type="image/svg+xml")
 
 
 @app.get("/api/health")
