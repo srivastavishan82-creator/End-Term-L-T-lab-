@@ -1,73 +1,20 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/index.py",
-      "use": "@vercel/python",
-      "config": {
-        "includeFiles": [
-          "static/**",
-          "app/**"
-        ]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/styles.css(.*)",
-      "dest": "/static/styles.css"
+      "source": "/api/:path*",
+      "destination": "/api/index.py"
     },
     {
-      "src": "/app.js(.*)",
-      "dest": "/static/app.js"
+      "source": "/login",
+      "destination": "/login.html"
     },
     {
-      "src": "/favicon.ico",
-      "dest": "/static/favicon.ico"
+      "source": "/dashboard",
+      "destination": "/dashboard.html"
     },
     {
-      "src": "/favicon.svg",
-      "dest": "/static/favicon.svg"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/static/assets/$1"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/",
-      "dest": "/static/login.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/static/login.html"
-    },
-    {
-      "src": "/login.html",
-      "dest": "/static/login.html"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/static/index.html"
-    },
-    {
-      "src": "/dashboard.html",
-      "dest": "/static/index.html"
-    },
-    {
-      "src": "/main",
-      "dest": "/static/index.html"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "api/index.py"
+      "source": "/main",
+      "destination": "/dashboard.html"
     }
   ]
 }
