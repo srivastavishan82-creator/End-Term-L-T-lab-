@@ -48,9 +48,28 @@
 }
 
 @layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
   html {
     box-sizing: border-box;
     scroll-behavior: smooth;
+    max-inline-size: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    max-inline-size: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    inline-size: 100%;
+    width: 100%;
   }
 
   body, h1, h2, h3, h4, p, figure, ul, ol, dl, dd {
@@ -60,18 +79,24 @@
   img, svg, picture, canvas {
     display: block;
     max-inline-size: 100%;
+    max-width: 100%;
+    height: auto;
   }
 
   button, input, select, textarea {
     font: inherit;
     color: inherit;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 }
 
 @layer base {
   html {
     overflow-x: hidden;
-    max-inline-size: 100vw;
+    max-inline-size: 100%;
+    max-width: 100%;
+    width: 100%;
     -webkit-text-size-adjust: 100%;
   }
 
@@ -85,6 +110,10 @@
     line-height: 1.55;
     min-block-size: 100dvh;
     overflow-x: hidden;
+    max-inline-size: 100%;
+    max-width: 100%;
+    inline-size: 100%;
+    width: 100%;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -129,8 +158,62 @@
   }
 
   .container {
-    inline-size: min(1280px, 100% - 2rem);
+    inline-size: 100%;
+    max-inline-size: 1280px;
+    padding-inline: 1rem;
     margin-inline: auto;
+    box-sizing: border-box;
+  }
+
+  /* Universal anti-overflow guards for grid and flex layouts */
+  .container,
+  .site-header,
+  .hero-card,
+  .control-deck,
+  .control-grid,
+  .kpi-grid,
+  .analytics-bento,
+  .cleaning-hero-strip,
+  .audit-grid,
+  .sandbox-grid,
+  .card,
+  .panel-card,
+  .table-wrapper,
+  .login-portal,
+  .login-container,
+  .login-grid,
+  .login-card,
+  .login-editorial {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .login-grid > *,
+  .hero-card > *,
+  .control-grid > *,
+  .analytics-bento > *,
+  .audit-grid > *,
+  .sandbox-grid > *,
+  .kpi-grid > * {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  #scatter-chart-container {
+    inline-size: 100%;
+    max-inline-size: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #scatter-chart-container svg {
+    inline-size: 100% !important;
+    max-inline-size: 100% !important;
+    min-inline-size: 0 !important;
+    min-width: 0 !important;
+    block-size: auto !important;
   }
 
   /* Header */
@@ -1912,81 +1995,171 @@
 
     /* Dedicated Institutional Login Portal Mobile Overrides */
     .login-portal {
+      inline-size: 100%;
+      max-inline-size: 100%;
       padding-block: 1rem 2rem;
-      padding-inline: 0.75rem;
+      padding-inline: 0.5rem;
       justify-content: flex-start;
+      overflow-x: hidden;
+      box-sizing: border-box;
     }
     .login-container {
+      inline-size: 100%;
+      max-inline-size: 100%;
       gap: 1rem;
+      box-sizing: border-box;
     }
     .login-top-bar {
+      inline-size: 100%;
+      max-inline-size: 100%;
       flex-direction: column;
       align-items: flex-start;
       gap: 0.65rem;
       padding-block-end: 0.75rem;
+      box-sizing: border-box;
+    }
+    .institutional-brand {
+      inline-size: 100%;
+      max-inline-size: 100%;
+      min-width: 0;
+    }
+    .institutional-brand > div {
+      min-width: 0;
+      word-break: break-word;
     }
     .institutional-crest {
       inline-size: 2.25rem;
       block-size: 2.25rem;
+      flex-shrink: 0;
     }
     .institutional-title {
       font-size: 1.05rem;
+      word-break: break-word;
     }
     .institutional-sub {
       font-size: 0.72rem;
+      word-break: break-word;
+    }
+    .institutional-meta {
+      inline-size: 100%;
+      max-inline-size: 100%;
+      flex-wrap: wrap;
+      gap: 0.35rem;
     }
     .badge-classic-gold,
     .institutional-meta .badge {
       font-size: 0.7rem;
       padding: 0.2rem 0.5rem;
+      word-break: break-word;
     }
 
     /* On mobile, elevate login card above editorial background info */
     .login-grid {
-      grid-template-columns: 1fr;
-      gap: 1.25rem;
+      inline-size: 100%;
+      max-inline-size: 100%;
+      grid-template-columns: 100%;
+      gap: 1rem;
+      box-sizing: border-box;
     }
     .login-card {
       order: 1;
-      padding: 1.25rem 1rem;
-      gap: 1.15rem;
+      inline-size: 100%;
+      max-inline-size: 100%;
+      padding: 1.15rem 0.75rem;
+      gap: 1.1rem;
       border-radius: var(--radius-md);
+      box-sizing: border-box;
+      overflow: hidden;
     }
     .login-card-title {
       font-size: clamp(1.35rem, 5vw, 1.65rem);
+      word-break: break-word;
     }
     .login-card-sub {
       font-size: 0.8rem;
+      word-break: break-word;
+    }
+    .field-label {
+      flex-wrap: wrap;
+      gap: 0.2rem;
+    }
+    .input-with-icon {
+      inline-size: 100%;
+      max-inline-size: 100%;
+    }
+    .input-field {
+      inline-size: 100%;
+      max-inline-size: 100%;
+      box-sizing: border-box;
     }
     .login-options-row {
+      inline-size: 100%;
+      max-inline-size: 100%;
       flex-direction: column;
       align-items: flex-start;
       gap: 0.65rem;
+      word-break: break-word;
     }
     .evaluation-callout {
+      inline-size: 100%;
+      max-inline-size: 100%;
       padding: 0.65rem 0.75rem;
       font-size: 0.76rem;
+      box-sizing: border-box;
+    }
+    .callout-text {
+      min-width: 0;
+      word-break: break-word;
     }
     .login-editorial {
       order: 2;
-      padding: 1.25rem 1rem;
+      inline-size: 100%;
+      max-inline-size: 100%;
+      padding: 1.15rem 0.75rem;
       gap: 1.25rem;
       border-radius: var(--radius-md);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    .editorial-crest-tag {
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      font-size: 0.6rem;
+      letter-spacing: 0.05em;
+      line-height: 1.4;
+      word-break: break-word;
     }
     .editorial-title {
       font-size: clamp(1.3rem, 5vw, 1.75rem);
+      word-break: break-word;
     }
     .editorial-lead {
       font-size: 0.85rem;
+      word-break: break-word;
+    }
+    .editorial-feature-item {
+      inline-size: 100%;
+      max-inline-size: 100%;
+    }
+    .editorial-feature-item > div {
+      min-width: 0;
+      word-break: break-word;
     }
     .editorial-features {
       gap: 0.85rem;
+      inline-size: 100%;
+      max-inline-size: 100%;
     }
     .editorial-illustration-frame {
+      inline-size: 100%;
+      max-inline-size: 100%;
       max-block-size: 120px;
     }
     .editorial-thumb {
+      inline-size: 100%;
+      max-inline-size: 100%;
       block-size: 120px;
+      object-fit: cover;
     }
   }
 

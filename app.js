@@ -439,7 +439,7 @@ function renderOverviewCharts(data) {
   const y52 = toY(52).toFixed(1);
 
   els.scatterChartContainer.innerHTML = `
-    <svg viewBox="0 0 ${w} ${h}" width="100%" style="min-inline-size: 540px; max-block-size: 290px;" role="img" aria-label="Scatter chart comparing attendance percentage and cleaned academic marks">
+    <svg viewBox="0 0 ${w} ${h}" width="100%" style="inline-size: 100%; max-inline-size: 100%; block-size: auto; max-block-size: 290px;" role="img" aria-label="Scatter chart comparing attendance percentage and cleaned academic marks">
       <rect x="${padL}" y="${padT}" width="${x72 - padL}" height="${plotH}" fill="rgb(239 68 68 / 0.04)" />
       <line x1="${padL}" y1="${y52}" x2="${w - padR}" y2="${y52}" stroke="var(--border-strong)" stroke-dasharray="4 4" />
       <line x1="${x72}" y1="${padT}" x2="${x72}" y2="${h - padB}" stroke="var(--border-strong)" stroke-dasharray="4 4" />
