@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Faculty Portal Sign In &mdash; EduShield AI</title>
   <meta name="description" content="Authorized institutional sign-in for EduShield AI Student Dropout Predictor and Python Data Cleaning Studio.">
-  <link rel="icon" href="/favicon.ico" sizes="any">
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body class="login-page-body">
   <!-- Dedicated Institutional Login Portal -->
@@ -88,9 +88,9 @@
           <div class="editorial-footer">
             <div class="editorial-illustration-frame">
               <picture>
-                <source srcset="/static/assets/hero-illustration.webp" type="image/webp">
+                <source srcset="assets/hero-illustration.webp" type="image/webp">
                 <img
-                  src="/static/assets/hero-illustration.jpg"
+                  src="assets/hero-illustration.jpg"
                   alt="Institutional retention analytics workspace"
                   width="480"
                   height="150"
@@ -254,7 +254,8 @@
 
         // Navigate to the main dashboard page
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          const isGitHubPages = window.location.hostname.includes('github.io');
+          window.location.href = isGitHubPages ? 'dashboard.html' : '/dashboard';
         }, 250);
       }
 

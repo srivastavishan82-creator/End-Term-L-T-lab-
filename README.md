@@ -41,3 +41,26 @@ python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
 
 Then open **http://127.0.0.1:8000** in your browser.
+
+## Live Website Deployment
+
+This repository includes turnkey configurations for hosting the project online:
+
+### 1. GitHub Pages (Static Live Link)
+- **Live Link:** [https://srivastavishan82-creator.github.io/End-Term-L-T-lab-/](https://srivastavishan82-creator.github.io/End-Term-L-T-lab-/)
+- **Setup (One-time in GitHub Settings):**
+  1. Go to your repository on GitHub: `https://github.com/srivastavishan82-creator/End-Term-L-T-lab-`
+  2. Click **Settings** &rarr; **Pages** (under Code and automation in the left sidebar).
+  3. Under **Build and deployment** &rarr; **Source**, select **GitHub Actions**.
+  4. The automated workflow `.github/workflows/deploy-pages.yml` will automatically build and publish the live site whenever you push to `main`.
+
+### 2. Full-Stack Cloud Deployment (Render / Vercel)
+For running both the Python scikit-learn models and the frontend online together:
+- **Render.com:**
+  1. Go to [render.com](https://render.com) and click **New +** &rarr; **Blueprint** (or **Web Service**).
+  2. Connect this repository (`srivastavishan82-creator/End-Term-L-T-lab-`).
+  3. Render will automatically read `render.yaml` / `Procfile`, install requirements, and spin up the live Uvicorn web app with an HTTPS URL.
+- **Vercel:**
+  1. Import the repository in [vercel.com](https://vercel.com).
+  2. Vercel automatically detects `vercel.json` and routes requests through `api/index.py`.
+

@@ -976,7 +976,8 @@ function initAuth() {
       sessionStorage.removeItem('edushield_user');
       localStorage.removeItem('edushield_user');
     } catch {}
-    window.location.href = '/login';
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    window.location.href = isGitHubPages ? 'index.html' : '/login';
   });
 }
 

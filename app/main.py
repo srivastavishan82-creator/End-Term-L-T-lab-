@@ -40,6 +40,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+if (STATIC_DIR / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
@@ -174,6 +176,33 @@ async def serve_favicon() -> FileResponse:
     if not favicon_path.exists():
         raise HTTPException(status_code=404, detail="Favicon not found.")
     return FileResponse(str(favicon_path), media_type="image/x-icon")
+
+
+@app.get("/styles.css", include_in_schema=False)
+@app.get("/dashboard/styles.css", include_in_schema=False)
+async def serve_styles() -> FileResponse:
+    css_path = STATIC_DIR / "styles.css"
+    if not css_path.exists():
+        raise HTTPException(status_code=404, detail="styles.css not found.")
+    return FileResponse(str(css_path), media_type="text/css")
+
+
+@app.get("/app.js", include_in_schema=False)
+@app.get("/dashboard/app.js", include_in_schema=False)
+async def serve_app_js() -> FileResponse:
+    js_path = STATIC_DIR / "app.js"
+    if not js_path.exists():
+        raise HTTPException(status_code=404, detail="app.js not found.")
+    return FileResponse(str(js_path), media_type="application/javascript")
+
+
+@app.get("/favicon.svg", include_in_schema=False)
+@app.get("/dashboard/favicon.svg", include_in_schema=False)
+async def serve_svg_favicon() -> FileResponse:
+    svg_path = STATIC_DIR / "favicon.svg"
+    if not svg_path.exists():
+        raise HTTPException(status_code=404, detail="favicon.svg not found.")
+    return FileResponse(str(svg_path), media_type="image/svg+xml")
 
 
 @app.get("/api/health")
